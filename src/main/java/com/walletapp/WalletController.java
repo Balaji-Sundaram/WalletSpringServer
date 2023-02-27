@@ -9,9 +9,13 @@ import java.util.List;
 
 @RestController
 public class WalletController {
+
+    // to convert the db to normal you have to remove the @Service and @Autowire on the WalletServiceImpl file
+    //also put the @Autowire and @Service on the wallerServiceOld file
 @Autowired
 private WalletService walletService;
-//
+
+//  Sample Data, copy and paste on Postman
 //    {
 //        "id":125567,
 //            "name":"James",
@@ -22,15 +26,6 @@ private WalletService walletService;
 //            "fundTransferPin":1001
 //    }
 
-//        {
-//            "id":125568,
-//            "name":"Maven",
-//            "balance":"100.0",
-//            "eMail": "Maven@gmail.com",
-//            "password": "Maven123",
-//            "createdDate": "2023-02-23",
-//            "fundTransferPin":1002
-//    }
 
     @GetMapping("/home")
     public String greet(){
@@ -83,5 +78,16 @@ private WalletService walletService;
         return walletService.getAllWallets();
     }
 
+
+    // using the searching algorithms
+    @GetMapping("/Wallet/Name/{name}")
+    public List<WalletDto>findByName(@PathVariable String name) {
+        return walletService.findByName(name);
+    }
+
+    @GetMapping("/Wallet/MinBalance/{minBalance}/MaxBalance/{maxBalance}")
+    public List<WalletDto>findByBalanceBetweenOrderByBalanceBalanceAsc(@PathVariable Double minBalance, @PathVariable Double maxBalance){
+        return walletService.findByBalanceBetweenOrderByBalanceBalanceDesc(minBalance,maxBalance);
+    }
 
     }

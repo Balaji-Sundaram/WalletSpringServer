@@ -13,23 +13,23 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 @SpringBootTest
 public class WalletRepositoryTest {
            @Autowired
-    private WalletRepository walletRepository;
+    private WalletJpaRepo walletJpaRepo;
     @BeforeEach
     public void init()   {
         LocalDate da = LocalDate.now();
-        walletRepository.createWallet(new WalletDto(125567,"james",1200.0,"james@gmail.com","James123",da,1001));
+        walletJpaRepo.save(new WalletDto(125567,"james",1200.0,"james@gmail.com","James123",da,1001));
     }
 
     @Test
     public void getWallet() {
-        assertEquals("james",walletRepository.getWalletById(125567).getName());
+        assertEquals("james", walletJpaRepo.getReferenceById(125567).getName());
     }
     @Test
     public void updateWallet() {
         LocalDate da = LocalDate.now();
         WalletDto walletDto=new WalletDto(125567,"Maven",1200.0,"Maven@gmail.com","Maven123",da,1002);
-        walletRepository.updateWallet(  walletDto);  //first update
-        assertEquals("Maven",walletRepository.getWalletById(125567).getName());  //check with new data
+        walletJpaRepo.save(  walletDto);  //first update
+        assertEquals("Maven", walletJpaRepo.getReferenceById(125567).getName());  //check with new data
     }
 
 

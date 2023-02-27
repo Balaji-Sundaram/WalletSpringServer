@@ -9,7 +9,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 		  it can  add your funds in your wallet and withdraw funds from your wallet also you can transfer the fund to your friends
 		  with a good secured app this app is  case-sensitive
 
-		  the Overall 62 Test cases were written for this application
+		  The test cases were first written for normal repository then it were modified to the jpa repository
 
 		  by
 		  balaji --------------------------------->HappyCoding😊

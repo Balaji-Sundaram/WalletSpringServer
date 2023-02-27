@@ -39,8 +39,7 @@ public class WalletServiceTest {
     }
     @Test
     public void addFundsToWalletById() throws WalletException {
-        walletService.addFundsToWalletById(125567,300.0);
-        assertEquals(1500.0, walletService.getWalletById(125567,"james@gmail.com","James123").getBalance());
+        assertEquals(1500.0,     walletService.addFundsToWalletById(125567,300.0));
     }
 
     @Test

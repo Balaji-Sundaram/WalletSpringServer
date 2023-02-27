@@ -148,7 +148,7 @@ public class WallerControllerTest {
     @Test
     public void fundTransferTestThrow4s()throws WalletException{  //  exception on wrong pin
         String statusofTransac = this.restTemplate.patchForObject("http://localhost:"+port+"/fundTransfer/ID/125567/CreditorID/125568/Pin/1097/Amount/610.0",null,String.class);
-        assertEquals( "Worng Pin or Wrong Wallet ID",statusofTransac);
+        assertEquals( "Wrong Pin or Wrong Wallet ID",statusofTransac);
     }
 
 //---------------------------------------------------------------------------> End of Fund Transfer  (post Mapping)

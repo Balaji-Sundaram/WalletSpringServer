@@ -14,5 +14,8 @@ public interface WalletService {
     Double withdrawFundsFromWalletById(Integer walletById,Double amount,Integer pin) throws WalletException;
     Boolean fundTransfer(Integer fromWalletId,Integer toWalletId,Integer pin,Double amount)throws WalletException;
 
+    public List<WalletDto> findByName(String name);
+
+    public List<WalletDto>findByBalanceBetweenOrderByBalanceBalanceDesc(Double minBalance,Double maxBalance);
     List<WalletDto> getAllWallets();
 }

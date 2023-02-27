@@ -4,10 +4,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
+
 @Service
 public class WalletServiceImpl implements WalletService{
     @Autowired
-    private WalletRepository walletRepository;
+    private WalletJpaRepo walletJpaRepo;    //jpa based service
     @Override
     public WalletDto registerWallet(WalletDto wallet) throws WalletException {
         int count =0;
@@ -20,34 +22,33 @@ public class WalletServiceImpl implements WalletService{
         if(count !=4 ){
             throw new WalletException("Enter 4 Digits only");
         }
-            return walletRepository.createWallet(wallet);
+            return this.walletJpaRepo.save(wallet);   //save the input data
     }
 
     @Override
     public WalletDto getWalletById(Integer walletId,String email,String password) throws WalletException {
-        WalletDto walletDto = walletRepository.getWalletById(walletId);
-        if(walletDto == null)
+        Optional<WalletDto> walletDto = this.walletJpaRepo.findById(walletId);    //optional is an object container
+        if(walletDto.isEmpty())
             throw new WalletException("Wallet Not Found");
         else {
-            Integer id = walletRepository.getWalletById(walletId).getId();
-            String eMail = walletRepository.getWalletById(walletId).geteMail();
-            String pass = walletRepository.getWalletById(walletId).getPassword();
-            if (id.equals(walletId) && eMail.equals(email) && pass.equals(password)) {
-                return walletRepository.getWalletById(walletId);
+            String eMail = walletDto.get().geteMail();//walletRepository.getWalletById(walletId).geteMail();
+            String pass = walletDto.get().getPassword();//walletRepository.getWalletById(walletId).getPassword();
+            if (eMail.equals(email) && pass.equals(password)) {
+                return walletDto.get();//walletRepository.getWalletById(walletId);
             }
             throw new WalletException("You Entered Wrong Credential Check Your Id, Email, Password ");
         }
     }
     @Override
     public WalletDto updateWallet( String email,String password,WalletDto wallet) throws WalletException {
-        WalletDto walletDto = walletRepository.getWalletById(wallet.getId());
-        if(walletDto == null)
+       Optional<WalletDto> walletDto = this.walletJpaRepo.findById(wallet.getId());
+        if(walletDto.isEmpty())
             throw new WalletException("Wallet Not Found");
         else {
-            String eMail = walletRepository.getWalletById(wallet.getId()).geteMail();
-            String pass = walletRepository.getWalletById(wallet.getId()).getPassword();
+            String eMail =walletDto.get().geteMail();// walletRepository.getWalletById(wallet.getId()).geteMail();
+            String pass = walletDto.get().getPassword();// walletRepository.getWalletById(wallet.getId()).getPassword();
             if (eMail.equals(email) && pass.equals(password)) {
-                return walletRepository.updateWallet(wallet);
+                return  walletJpaRepo.save(wallet); //walletRepository.updateWallet(wallet);
             }
             throw new WalletException("You Entered Wrong Credential Check Your Id, Email, Password ");
         }
@@ -57,14 +58,16 @@ public class WalletServiceImpl implements WalletService{
 
     @Override
     public WalletDto deleteWalletById(Integer walletId,String email,String password) throws WalletException {
-        WalletDto walletDto = walletRepository.getWalletById(walletId);
-        if(walletDto == null)
+        Optional<WalletDto> walletDto = walletJpaRepo.findById(walletId);
+        if(walletDto.isEmpty())
             throw new WalletException("Wallet Not Found");
         else {
-            String eMail = walletRepository.getWalletById(walletId).geteMail();
-            String pass = walletRepository.getWalletById(walletId).getPassword();
+            String eMail = walletDto.get().geteMail();//walletRepository.getWalletById(walletId).geteMail();
+            String pass =  walletDto.get().getPassword();//walletRepository.getWalletById(walletId).getPassword();
             if ( eMail.equals(email) && pass.equals(password)) {
-                return walletRepository.deleteWalletById(walletId);
+                WalletDto foundWallet = walletDto.get();
+                this.walletJpaRepo.delete(foundWallet);
+                return foundWallet;
             }
             throw new WalletException("You Entered Wrong Credential Check Your Id, Email, Password ");
         }
@@ -72,30 +75,36 @@ public class WalletServiceImpl implements WalletService{
 
     @Override
     public Double addFundsToWalletById(Integer walletId, Double amount) throws WalletException {
-        WalletDto walletDto = walletRepository.getWalletById(walletId);
-        if(walletDto == null)
+        Optional<WalletDto> walletDto = this.walletJpaRepo.findById(walletId);
+        if(walletDto.isEmpty())
             throw new WalletException("Wallet Not Found");
         else {
-            walletRepository.getWalletById(walletId).setBalance( walletRepository.getWalletById(walletId).getBalance()+amount);
-            return   walletRepository.getWalletById(walletId).getBalance();
+            Double temp =walletJpaRepo.findById(walletId).get().getBalance();
+             WalletDto walletDto1 = this.walletJpaRepo.getReferenceById(walletId);
+             walletDto1.setBalance(temp+amount);
+              this.walletJpaRepo.save(walletDto1);
+
+          //  this.walletJpaRepo.findById(walletId).get().setBalance(temp+amount);//     .setBalance( walletRepository.getWalletById(walletId).getBalance()+amount);
+            return   this.walletJpaRepo.findById(walletId).get().getBalance();//walletRepository.getWalletById(walletId).getBalance();
         }
     }
 
     @Override    //mistaken yesterday
     public Double withdrawFundsFromWalletById(Integer walletById, Double amount,Integer pin) throws WalletException {
-        WalletDto walletDto = walletRepository.getWalletById(walletById);
-        if(walletDto == null)
+        Optional<WalletDto> walletDto = this.walletJpaRepo.findById(walletById);
+        if(walletDto.isEmpty())
             throw new WalletException("Wallet Not Found");
           else {
-                 if( pin.equals(walletRepository.getWalletById(walletById).getFundTransferPin())) {
-                     Double balance =walletRepository.getWalletById(walletById).getBalance();
+                 if( pin.equals(this.walletJpaRepo.findById(walletById).get().getFundTransferPin())) {                //walletRepository.getWalletById(walletById).getFundTransferPin()
+                     Double balance =   this.walletJpaRepo.findById(walletById).get().getBalance();                    //walletRepository.getWalletById(walletById).getBalance();
                      String toBalance= balance.toString();
-                     if(walletRepository.getWalletById(walletById).getBalance()<amount)
+                     if(balance<amount)
                          throw new WalletException("Insufficient Balance and your Balance: "+toBalance );
+                     WalletDto walletDto1 = this.walletJpaRepo.getReferenceById(walletById);
+                      walletDto1.setBalance(balance-amount);
+                      this.walletJpaRepo.save(walletDto1);
 
-
-                     walletRepository.getWalletById(walletById).setBalance(balance-amount);
-                     return walletRepository.getWalletById(walletById).getBalance();
+                     return this.walletJpaRepo.findById(walletById).get().getBalance();
             }
                 throw new WalletException("Wrong Pin or Wrong Wallet ID");
         }
@@ -103,52 +112,42 @@ public class WalletServiceImpl implements WalletService{
 
     @Override
     public Boolean fundTransfer(Integer fromWalletId, Integer toWalletId, Integer pin ,Double amount) throws WalletException {
-        WalletDto walletDto = walletRepository.getWalletById(fromWalletId);
-        WalletDto walletDto1 = walletRepository.getWalletById(toWalletId);
-        if(walletDto == null  || walletDto1 == null  || fromWalletId.equals(toWalletId) )
+        Optional<WalletDto> walletDto = this.walletJpaRepo.findById(fromWalletId);
+        Optional<WalletDto> walletDto1 = this.walletJpaRepo.findById(toWalletId);
+        WalletDto fromWallet =  this.walletJpaRepo.getReferenceById(fromWalletId);
+        WalletDto toWallet = this.walletJpaRepo.getReferenceById(toWalletId);
+        if(walletDto.isEmpty()  || walletDto1.isEmpty()  || fromWalletId.equals(toWalletId) )
             throw new WalletException("No Debtor or Creditor Found");
         else {
-            if( pin.equals(walletRepository.getWalletById(fromWalletId).getFundTransferPin())) {
-                Double balance = walletDto.getBalance();
-                Double tobalance = walletDto1.getBalance();
+            if( pin.equals(this.walletJpaRepo.findById(fromWalletId).get().getFundTransferPin())) {
+                Double balance = fromWallet.getBalance();
+                Double tobalance = toWallet.getBalance();
                 String toBalance= balance.toString();
-                if(walletRepository.getWalletById(fromWalletId).getBalance()<amount)
+                if(this.walletJpaRepo.findById(fromWalletId).get().getBalance()<amount)
                     throw new WalletException("Insufficient Balance and your Balance: "+toBalance);
 
-                walletRepository.getWalletById(fromWalletId).setBalance(balance-amount);
-                walletRepository.getWalletById(toWalletId).setBalance(tobalance+amount);
+                fromWallet.setBalance(balance-amount);
+                toWallet.setBalance(tobalance+amount);
+                this.walletJpaRepo.save(fromWallet);
+                this.walletJpaRepo.save(toWallet);
                 return true;
             }
-            throw new WalletException("Worng Pin or Wrong Wallet ID");
+            throw new WalletException("Wrong Pin or Wrong Wallet ID");
         }
     }
 
     @Override
+    public List<WalletDto> findByName(String name)  {    //recent one
+                    return walletJpaRepo.findByName(name);
+    }
+
+    @Override
+    public List<WalletDto> findByBalanceBetweenOrderByBalanceBalanceDesc(Double minBalance, Double maxBalance) {
+        return walletJpaRepo.findByBalanceBetweenOrderByBalanceDesc(minBalance,maxBalance);
+    }
+
+    @Override
     public List<WalletDto> getAllWallets() {
-         return walletRepository.getAllWallets();
+         return walletJpaRepo.findAll();
     }
 }
-/*
-
-    @Override
-    public Double addFundsToWalletById(Integer walletId, Double amount) {
-
-           walletDtoMap.get(walletId).setBalance((walletDtoMap.get(walletId).getBalance()) + amount);
-           Double balance =walletDtoMap.get(walletId).getBalance();
-           return balance ;
-    }
-
-    @Override
-    public Double withdrawFundsFromWalletById(Integer walletById, Double amount) {
-        walletDtoMap.get(walletById).setBalance((walletDtoMap.get(walletById).getBalance())-amount);
-        return walletDtoMap.get(walletById).getBalance();
-    }
-
-    @Override
-    public Boolean fundTransfer(Integer fromWalletId, Integer toWalletId, Double amount) {
-        walletDtoMap.get(toWalletId).setBalance((walletDtoMap.get(toWalletId).getBalance()) + amount);
-        walletDtoMap.get(fromWalletId).setBalance((walletDtoMap.get(fromWalletId).getBalance())-amount);
-        return true ;
-    }
-
- */

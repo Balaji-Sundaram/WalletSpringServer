@@ -14,6 +14,9 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
         USERNAME   & PASSWORD  : wallet
         PATH : C:/wallet/walletdb
 
+        NOTE:   the port is used in this file is 8080
+        				if it shows error change to 8090
+
 
 
 		  by

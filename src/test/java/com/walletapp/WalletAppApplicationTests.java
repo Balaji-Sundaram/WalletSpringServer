@@ -14,7 +14,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 
-//Hi this is Balaji, the overall test cases written for this application is 62 --------->HappyCoding😊
+//Hi this is Balaji,   --------->HappyCoding😊
 @SpringBootTest
 class WalletAppApplicationTests {
 //

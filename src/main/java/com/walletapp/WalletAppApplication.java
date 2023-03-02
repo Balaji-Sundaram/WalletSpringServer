@@ -10,6 +10,11 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 		  with a good secured app this app is  case-sensitive
 
 		  The test cases were first written for normal repository then it were modified to the jpa repository
+        DATABASE:
+        USERNAME   & PASSWORD  : wallet
+        PATH : C:/wallet/walletdb
+
+
 
 		  by
 		  balaji --------------------------------->HappyCoding😊

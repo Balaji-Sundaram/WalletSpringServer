@@ -1,11 +1,14 @@
 package com.walletapp;
 
+import org.springframework.context.annotation.PropertySource;
+
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import java.time.LocalDate;
 @Entity
+@PropertySource("classpath:application.properties")
 public class WalletDto { // POJO
     @Id
     @NotNull(message = "Id Not be Null")

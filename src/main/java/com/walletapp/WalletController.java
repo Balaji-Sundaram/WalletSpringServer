@@ -4,10 +4,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import javax.persistence.criteria.CriteriaBuilder;
 import javax.validation.Valid;
 import java.util.List;
 
 @RestController
+@CrossOrigin(value = "http://localhost:4200/")
 public class WalletController {
 
     // to convert the db to normal you have to remove the @Service and @Autowire on the WalletServiceImpl file
@@ -77,7 +79,10 @@ private WalletService walletService;
     public List<WalletDto> getAllWallets(){
         return walletService.getAllWallets();
     }
-
+  @GetMapping("/{id}")
+  public List<WalletDto> findById(@PathVariable Integer id){
+        return walletService.findbyId(id);
+  }
 
     // using the searching algorithms
     @GetMapping("/Wallet/Name/{name}")

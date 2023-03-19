@@ -150,4 +150,9 @@ public class WalletServiceImpl implements WalletService{
     public List<WalletDto> getAllWallets() {
          return walletJpaRepo.findAll();
     }
+
+    @Override
+    public List<WalletDto> findbyId(Integer id) {
+       return this.walletJpaRepo.findWalletDtoById(id);
+    }
 }

@@ -10,6 +10,8 @@ public interface WalletJpaRepo extends JpaRepository< WalletDto,Integer> {
 
     List<WalletDto> findByName(String name);
 
+    List<WalletDto> findWalletDtoById(Integer id);
+
     List<WalletDto>findByBalanceBetweenOrderByBalanceDesc(Double minBalance,Double maxBalance);
 
 }

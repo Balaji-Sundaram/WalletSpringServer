@@ -1,11 +1,17 @@
 package com.walletapp;
 
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
-import javax.persistence.criteria.CriteriaBuilder;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
+import java.util.Date;
 import java.util.List;
 
 @RestController
@@ -95,4 +101,58 @@ private WalletService walletService;
         return walletService.findByBalanceBetweenOrderByBalanceBalanceDesc(minBalance,maxBalance);
     }
 
+    //new version 4 Upgrade ----->Mar 4  (10.47Pm)
+
+    @PostMapping("/V4/addWallet")
+    public WalletDto create(@Valid @RequestBody WalletDto walletDto) throws WalletException {
+        return walletService.registerWallet(walletDto);
     }
+
+    @PostMapping("/V4/login/G-Mail/{gmail}/Password/{password}/ID/{id}")
+    public String getWallet(@PathVariable Integer id, @PathVariable String gmail, @PathVariable String password, HttpServletResponse httpServletResponse)  throws WalletException {
+        WalletDto walletDto = walletService.getWalletById(id,gmail,password);
+        if(walletDto == null) throw new WalletException("no Wallet Found");
+
+        String issuer = walletDto.geteGmail();
+        Date sessionExpiry = new Date(System.currentTimeMillis()+(1000*60*60));   //use to set the session expiry date or time
+        String key ="AegonIII";
+
+        //creation of tokens     and the secrect key is AegonIII
+        String jwt = Jwts.builder().setIssuer(issuer).setExpiration(sessionExpiry)
+                .signWith(SignatureAlgorithm.HS256,key).compact();
+
+        //cookies 🍪
+        Cookie cookie = new Cookie("wallet",jwt);  //creation of cookie object
+        httpServletResponse.addCookie(cookie);
+        return "Login Success";
+    }
+
+    @PostMapping("/V4/Logoff")
+    public String logoff(HttpServletResponse httpServletResponse){
+        Cookie cookie = new Cookie("wallet",null);
+        httpServletResponse.addCookie(cookie);     //here we're erasing the cookie so, it deletes the login credentials
+        return "Log Off Successfully";
+    }
+    @GetMapping("/V4/logIn")
+    public WalletDto logIn (@CookieValue("wallet")String wallet) throws WalletException{
+        if(wallet == null) throw new WalletException("No Previous Session Found");
+
+        Claims claims = null;
+        String gmail ;
+
+        try{
+            claims = Jwts.parser().setSigningKey("AegonIII").parseClaimsJws(wallet).getBody();   //give your secret key
+            gmail = claims.getIssuer();
+        }
+        catch (ExpiredJwtException e){
+            throw new WalletException("Session Expired LogIn Again");
+        }
+        catch (Exception e){
+            throw new WalletException(e.getMessage());
+        }
+        return walletService.findByGmail(gmail);
+    }
+
+
+
+}

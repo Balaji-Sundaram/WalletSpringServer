@@ -31,7 +31,7 @@ public class WalletServiceImpl implements WalletService{
         if(walletDto.isEmpty())
             throw new WalletException("Wallet Not Found");
         else {
-            String eMail = walletDto.get().geteMail();//walletRepository.getWalletById(walletId).geteMail();
+            String eMail = walletDto.get().geteGmail();//walletRepository.getWalletById(walletId).geteMail();
             String pass = walletDto.get().getPassword();//walletRepository.getWalletById(walletId).getPassword();
             if (eMail.equals(email) && pass.equals(password)) {
                 return walletDto.get();//walletRepository.getWalletById(walletId);
@@ -45,7 +45,7 @@ public class WalletServiceImpl implements WalletService{
         if(walletDto.isEmpty())
             throw new WalletException("Wallet Not Found");
         else {
-            String eMail =walletDto.get().geteMail();// walletRepository.getWalletById(wallet.getId()).geteMail();
+            String eMail =walletDto.get().geteGmail();// walletRepository.getWalletById(wallet.getId()).geteMail();
             String pass = walletDto.get().getPassword();// walletRepository.getWalletById(wallet.getId()).getPassword();
             if (eMail.equals(email) && pass.equals(password)) {
                 return  walletJpaRepo.save(wallet); //walletRepository.updateWallet(wallet);
@@ -62,7 +62,7 @@ public class WalletServiceImpl implements WalletService{
         if(walletDto.isEmpty())
             throw new WalletException("Wallet Not Found");
         else {
-            String eMail = walletDto.get().geteMail();//walletRepository.getWalletById(walletId).geteMail();
+            String eMail = walletDto.get().geteGmail();//walletRepository.getWalletById(walletId).geteMail();
             String pass =  walletDto.get().getPassword();//walletRepository.getWalletById(walletId).getPassword();
             if ( eMail.equals(email) && pass.equals(password)) {
                 WalletDto foundWallet = walletDto.get();
@@ -154,5 +154,10 @@ public class WalletServiceImpl implements WalletService{
     @Override
     public List<WalletDto> findbyId(Integer id) {
        return this.walletJpaRepo.findWalletDtoById(id);
+    }
+
+    @Override
+    public WalletDto findByGmail(String eMail) {
+        return this.walletJpaRepo.findByGmail(eMail);
     }
 }

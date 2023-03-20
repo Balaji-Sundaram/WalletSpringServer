@@ -15,7 +15,7 @@ public class WalletDto { // POJO
     private Integer id;
     private String name;
     private Double balance;
-    private String eMail ;
+    private String gmail;
     @Pattern(regexp = "[a-zA-Z1-9]{8}",message = "Your Password Must be 8 and not more or less and it must contain lower case and upper case and numbers !!!")
     private String password;
     private LocalDate createdDate;
@@ -26,11 +26,11 @@ public class WalletDto { // POJO
     public WalletDto() {
     }
 
-    public WalletDto(Integer id, String name, Double balance, String eMail, String password, LocalDate createdDate,Integer fundTransferPin) {
+    public WalletDto(Integer id, String name, Double balance, String gmail, String password, LocalDate createdDate, Integer fundTransferPin) {
         this.id = id;
         this.name = name;
         this.balance = balance;
-        this.eMail = eMail;
+        this.gmail = gmail;
         this.password = password;
         this.createdDate = createdDate;
         this.fundTransferPin = fundTransferPin;
@@ -68,12 +68,12 @@ public class WalletDto { // POJO
         this.balance = balance;
     }
 
-    public String geteMail() {
-        return eMail;
+    public String geteGmail() {
+        return gmail;
     }
 
-    public void seteMail(String eMail) {
-        this.eMail = eMail;
+    public void seteGmail(String eMail) {
+        this.gmail = eMail;
     }
 
     public String getPassword() {
@@ -98,13 +98,12 @@ public class WalletDto { // POJO
                 "id=" + id +
                 ", name='" + name + '\'' +
                 ", balance=" + balance +
-                ", eMail='" + eMail + '\'' +
+                ", eMail='" + gmail + '\'' +
                 ", password='" + password + '\'' +
                 ", createdDate=" + createdDate +
                 ", fundTransferPin=" + fundTransferPin +
                 '}';
     }
-
 
 
 

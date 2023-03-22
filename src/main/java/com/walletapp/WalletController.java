@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import javax.persistence.criteria.CriteriaBuilder;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
@@ -101,30 +102,32 @@ private WalletService walletService;
         return walletService.findByBalanceBetweenOrderByBalanceBalanceDesc(minBalance,maxBalance);
     }
 
+
     //new version 4 Upgrade ----->Mar 4  (10.47Pm)
 
-    @PostMapping("/V4/addWallet")
-    public WalletDto create(@Valid @RequestBody WalletDto walletDto) throws WalletException {
-        return walletService.registerWallet(walletDto);
-    }
+//    @PostMapping("/V4/addWallet")
+//    public WalletDto create(@Valid @RequestBody WalletDto walletDto) throws WalletException {
+//        return walletService.registerWallet(walletDto);
+//    }
 
-    @PostMapping("/V4/login/G-Mail/{gmail}/Password/{password}/ID/{id}")
-    public String getWallet(@PathVariable Integer id, @PathVariable String gmail, @PathVariable String password, HttpServletResponse httpServletResponse)  throws WalletException {
-        WalletDto walletDto = walletService.getWalletById(id,gmail,password);
+    @PostMapping("/V4/login")
+    public WalletDto  getWallet( @RequestBody LoginDto loginDto,HttpServletResponse httpServletResponse)  throws WalletException {
+        WalletDto walletDto = walletService.getWalletById(loginDto.id,loginDto.gmail,loginDto.password);
         if(walletDto == null) throw new WalletException("no Wallet Found");
 
-        String issuer = walletDto.geteGmail();
+        String issuer = walletDto.geteMail();
         Date sessionExpiry = new Date(System.currentTimeMillis()+(1000*60*60));   //use to set the session expiry date or time
-        String key ="AegonIII";
+        String key ="PRIME";
 
-        //creation of tokens     and the secrect key is AegonIII
+        //creation of tokens     and the secret key is PRIME
         String jwt = Jwts.builder().setIssuer(issuer).setExpiration(sessionExpiry)
                 .signWith(SignatureAlgorithm.HS256,key).compact();
 
         //cookies 🍪
         Cookie cookie = new Cookie("wallet",jwt);  //creation of cookie object
+          walletDto.setJwt(jwt);
         httpServletResponse.addCookie(cookie);
-        return "Login Success";
+        return walletDto;
     }
 
     @PostMapping("/V4/Logoff")
@@ -133,15 +136,16 @@ private WalletService walletService;
         httpServletResponse.addCookie(cookie);     //here we're erasing the cookie so, it deletes the login credentials
         return "Log Off Successfully";
     }
-    @GetMapping("/V4/logIn")
-    public WalletDto logIn (@CookieValue("wallet")String wallet) throws WalletException{
-        if(wallet == null) throw new WalletException("No Previous Session Found");
+    @GetMapping("/V4/postlogin")
+    public WalletDto logIn (@RequestHeader("Authorization")String walletBT) throws WalletException{
+        if(walletBT == null) throw new WalletException("No Previous Session Found");
+
+        String wallet=walletBT.substring(7);
 
         Claims claims = null;
-        String gmail ;
-
+        String gmail = null ;
         try{
-            claims = Jwts.parser().setSigningKey("AegonIII").parseClaimsJws(wallet).getBody();   //give your secret key
+            claims = Jwts.parser().setSigningKey("PRIME").parseClaimsJws(wallet).getBody();   //give your secret key
             gmail = claims.getIssuer();
         }
         catch (ExpiredJwtException e){
@@ -150,9 +154,8 @@ private WalletService walletService;
         catch (Exception e){
             throw new WalletException(e.getMessage());
         }
-        return walletService.findByGmail(gmail);
+        return walletService.findAllByEMail(gmail);
     }
-
 
 
 }

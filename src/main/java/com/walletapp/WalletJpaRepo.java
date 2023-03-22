@@ -14,6 +14,5 @@ public interface WalletJpaRepo extends JpaRepository< WalletDto,Integer> {
 
     List<WalletDto>findByBalanceBetweenOrderByBalanceDesc(Double minBalance,Double maxBalance);
 
-  WalletDto findByGmail(String eMail);
-
+     WalletDto findByeMail (String email);
 }

@@ -19,5 +19,5 @@ public interface WalletService {
     public List<WalletDto>findByBalanceBetweenOrderByBalanceBalanceDesc(Double minBalance,Double maxBalance);
     List<WalletDto> getAllWallets();
     List<WalletDto> findbyId(Integer id);
-    WalletDto findByGmail(String eMail);
+    WalletDto findAllByEMail(String eMail);
 }

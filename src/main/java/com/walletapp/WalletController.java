@@ -139,9 +139,7 @@ private WalletService walletService;
     @GetMapping("/V4/postlogin")
     public WalletDto logIn (@RequestHeader("Authorization")String walletBT) throws WalletException{
         if(walletBT == null) throw new WalletException("No Previous Session Found");
-
         String wallet=walletBT.substring(7);
-
         Claims claims = null;
         String gmail = null ;
         try{

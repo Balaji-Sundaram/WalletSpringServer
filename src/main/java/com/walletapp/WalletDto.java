@@ -1,11 +1,11 @@
 package com.walletapp;
 
 import org.springframework.context.annotation.PropertySource;
-
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Pattern;
+import jakarta.persistence.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import java.time.LocalDate;
 @Entity
 @PropertySource("classpath:application.properties")

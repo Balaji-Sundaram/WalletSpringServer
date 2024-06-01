@@ -1,17 +1,24 @@
 package com.walletapp;
 
+import ch.qos.logback.core.encoder.EchoEncoder;
 import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.io.Decoders;
+//import io.jsonwebtoken.security.Keys;
+
+
+import io.jsonwebtoken.security.Keys;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletResponse;
-import javax.validation.Valid;
+
 import java.util.Date;
 import java.util.List;
 
@@ -111,17 +118,25 @@ private WalletService walletService;
 //    }
 
     @PostMapping("/V4/login")
-    public WalletDto  getWallet( @RequestBody LoginDto loginDto,HttpServletResponse httpServletResponse)  throws WalletException {
+    public WalletDto  getWallet(@RequestBody LoginDto loginDto, HttpServletResponse httpServletResponse)  throws WalletException {
         WalletDto walletDto = walletService.getWalletById(loginDto.id,loginDto.gmail,loginDto.password);
         if(walletDto == null) throw new WalletException("no Wallet Found");
 
         String issuer = walletDto.geteMail();
         Date sessionExpiry = new Date(System.currentTimeMillis()+(1000*60*60));   //use to set the session expiry date or time
         String key ="PRIME";
-
+        byte[] secretKey = new byte[32];
+        secretKey = "PRIME_WALLET_H2_HEY_DOOD_ITS_PRIME_TIME".getBytes();
+        long sessionExpiryInMs = 3600000;
         //creation of tokens     and the secret key is PRIME
-        String jwt = Jwts.builder().setIssuer(issuer).setExpiration(sessionExpiry)
-                .signWith(SignatureAlgorithm.HS256,key).compact();
+//        String jwt = Jwts.builder().setIssuer(issuer).setExpiration(sessionExpiry)
+//                .signWith(SignatureAlgorithm.HS256,key).compact();
+
+        String jwt   = Jwts.builder()
+                .setIssuer(issuer)
+                .setExpiration(new Date(System.currentTimeMillis() + sessionExpiryInMs))
+                .signWith(SignatureAlgorithm.HS256, secretKey)
+                .compact();
 
         //cookies 🍪
         Cookie cookie = new Cookie("wallet",jwt);  //creation of cookie object
@@ -142,11 +157,14 @@ private WalletService walletService;
         String wallet=walletBT.substring(7);
         Claims claims = null;
         String gmail = null ;
+        byte[] secretKey = new byte[32];
+        secretKey = "PRIME_WALLET_H2_HEY_DOOD_ITS_PRIME_TIME".getBytes();
+
         try{
-            claims = Jwts.parser().setSigningKey("PRIME").parseClaimsJws(wallet).getBody();   //give your secret key
+            claims = Jwts.parser().setSigningKey(secretKey).parseClaimsJws(wallet).getBody();   //give your secret key
             gmail = claims.getIssuer();
         }
-        catch (ExpiredJwtException e){
+        catch (JwtException e){
             throw new WalletException("Session Expired LogIn Again");
         }
         catch (Exception e){
